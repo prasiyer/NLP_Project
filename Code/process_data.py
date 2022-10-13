@@ -1,16 +1,30 @@
 import sys
+import pandas as pd
+from sqlalchemy import create_engine
 
 
 def load_data(messages_filepath, categories_filepath):
-    pass
+    msg_df = pd.read_csv(messages_filepath)
+    category_df = pd.read_csv(categories_filepath)
+    consol_df = msg_df.merge(category_df, left_on = 'id', right_on = 'id')
+    return consol_df
+    
 
-
-def clean_data(df):
-    pass
+def clean_data(consol_df):
+    categories = consol_df['categories'].str.split(pat = ';', expand = True)
+    cat_names = categories[0:1].apply(lambda x: x.str[:-2]).astype(str)
+    for column in categories.columns:
+        categories[column] = categories[column].str[-1].astype(int)
+        categories[column] = categories[column].apply(lambda x: 1 if x > 1 else x)
+    msg_cat_df = pd.concat([consol_df, categories], axis = 1)
+    msg_cat_df.drop(columns = ['categories'], axis = 1, inplace = True)
+    msg_cat_clean_df = msg_cat_df.drop_duplicates()
+    return msg_cat_clean_df
 
 
 def save_data(df, database_filename):
-    pass  
+    engine = create_engine(database_filename)
+    df.to_sql('Message_Category', engine, index=False, if_exists = 'replace')
 
 
 def main():
@@ -20,7 +34,7 @@ def main():
 
         print('Loading data...\n    MESSAGES: {}\n    CATEGORIES: {}'
               .format(messages_filepath, categories_filepath))
-        df = load_data(messages_filepath, categories_filepath)
+        msg_df, cat_df = load_data(messages_filepath, categories_filepath)
 
         print('Cleaning data...')
         df = clean_data(df)
