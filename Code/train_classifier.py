@@ -21,23 +21,76 @@ import pickle
 
 
 def load_data(database_filepath):
-    pass
+    db_engine = create_engine(database_filepath)
+    msg_df = pd.read_sql_table('Message_Category', db_engine)
+    X = msg_df['message'].values
+    for column_name in msg_df.columns[~msg_df.columns.isin(['id', 'genre', 'message', 'original'])]:
+        msg_df[column_name] = msg_df[column_name].astype('int')
+    y = msg_df.loc[:, ~msg_df.columns.isin(['id', 'genre', 'message', 'original'])].values
+    columnn_labels = msg_df.columns[~msg_df.columns.isin(['id', 'genre', 'message', 'original'])]
+    return X, y, columnn_labels
 
 
 def tokenize(text):
-    pass
+    '''
+    Create tokens and then lemmatize the tokens. Useful for including in CountVectorizer
+    Parameters:
+        text (str): Input text to be tokenized
+    '''
+    tokens = word_tokenize(text)
+    lemmatizer = WordNetLemmatizer()
+    lemmatized_tokens = []
+    for tok in tokens:
+        clean_token = lemmatizer.lemmatize(tok).lower().strip()
+        lemmatized_tokens.append(clean_token)
+    return lemmatized_tokens
 
 
 def build_model():
-    pass
+    pipeline = Pipeline([
+    ('vect', CountVectorizer(tokenizer = tokenize)),
+    ('tfidf', TfidfTransformer()),
+    ('MOClf', MultiOutputClassifier(estimator = KNeighborsClassifier()))])
+    parameters = {'MOClf__estimator': [RandomForestClassifier(), KNeighborsClassifier() ]}
+    cv = GridSearchCV(pipeline, param_grid=parameters)
+    return cv
 
 
 def evaluate_model(model, X_test, Y_test, category_names):
-    pass
+    '''
+    Calculate accuracy, precision, recall and f1 score for the input model
+    Parameters:
+        trained_model: Model to be used for prediction on the test dataset
+        X_test: Input for the prediction
+        y_test: Ground truth or the correct prediction
+        y_pred: Predicted results
+        column_labels: Labels for the predicted variables
+    Returns:
+        trained_model_accuracy: Overall accuracy of the trained model
+        accuracy_df: Dataframe containing the performance metrics on the test set
+    '''
+    Y_pred = model.predict(X_test)
+    test_result_df = pd.DataFrame(Y_test, columns = category_names)
+    pred_result_df = pd.DataFrame(Y_pred, columns = category_names)
+    #column = 'related'
+    #accuracy = accuracy_score(test_result_df['related'], pred_result_df['related'])
+    trained_model_accuracy = model.score(X_test, Y_test)
+    accuracy_df = pd.DataFrame(data = [], columns = ['Category', 'Accuracy','Precision', 'Recall', 'F1'])
+    i = 0
+    for column_name in category_names:
+        accuracy_score_column = round(accuracy_score(test_result_df[column_name], pred_result_df[column_name]), 2)
+        precision_score_column = round(precision_score(test_result_df[column_name], pred_result_df[column_name]), 2)
+        recall_score_column = round(recall_score(test_result_df[column_name], pred_result_df[column_name]), 2)
+        f1_score_column = round(f1_score(test_result_df[column_name], pred_result_df[column_name]), 2)
+        #print(column_name, '----', accuracy_score_column)
+        accuracy_df.loc[i] = [column_name, accuracy_score_column, precision_score_column, recall_score_column, f1_score_column]
+        i += 1
+    return accuracy_df, trained_model_accuracy
 
 
 def save_model(model, model_filepath):
-    pass
+    #filename = 'cv_model.sav'
+    pickle.dump(model.best_estimator_, open(model_filepath, 'wb'))
 
 
 def main():

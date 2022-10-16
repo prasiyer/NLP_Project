@@ -23,7 +23,8 @@ def clean_data(consol_df):
 
 
 def save_data(df, database_filename):
-    engine = create_engine(database_filename)
+    db_filename = 'sqlite:////data2/home/prasannaiyer/Projects/NLP_Project/Data/DisasterResponse1.db'
+    engine = create_engine(db_filename)
     df.to_sql('Message_Category', engine, index=False, if_exists = 'replace')
 
 
@@ -34,7 +35,7 @@ def main():
 
         print('Loading data...\n    MESSAGES: {}\n    CATEGORIES: {}'
               .format(messages_filepath, categories_filepath))
-        msg_df, cat_df = load_data(messages_filepath, categories_filepath)
+        df = load_data(messages_filepath, categories_filepath)
 
         print('Cleaning data...')
         df = clean_data(df)
