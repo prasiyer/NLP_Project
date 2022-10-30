@@ -37,13 +37,15 @@ Instructions:
     b) categories_filepath (str): Location of the csv file containing the categories for the disaster messages </br>
     c) database_filepath (str): String containing the location and name of the database. The pandas Dataframe with the transformed data will be saved as a table in this database </br>
     d) This script as run on the terminal -
-        python process_data.py messages_filepath categories_filepath database_filepath </br>
+        cd NLP_Project ## go to the location of the repository
+        python /code/process_data.py /data/disaster_messages.csv /data/disaster_categories.csv /data/DisasterResponse.db </br>
 2) train_classifier.py: This script accepts 2 input parameters - </br>
     a) database_filepath (str): String containing the location and name of the database. This database has the input data for training (as a table) </br>
     b) model_filepath (str): String containing the location where the trained model should be stored (as a pickle file) </br>
     c) This script as run on the terminal - </br>
-        python train_classifier.py database_filepath model_filepath
+        python /code/train_classifier.py /data/DisasterResponse.db /code/cv_model1.sav
 3) run.py: This script does not have any input parameters. Before running the location of the saved model has to be validated </br>
+    python /code/run.py
     
 ## Acknowledgements ##
 Thanks to Python open source community for creating valuable libraries used in this project. <br>
