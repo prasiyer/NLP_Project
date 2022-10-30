@@ -4,6 +4,13 @@ from sqlalchemy import create_engine
 
 
 def load_data(messages_filepath, categories_filepath):
+    '''
+    Load data from two csv files into pandas dataframes. Merge the two individual dataframes and return the merged dataframe
+    Parameters:
+        messages_filepath (str): Path to the messages file
+        categories_filepath (str): Path to the categories file
+    Returns: Dataframe 
+    '''
     msg_df = pd.read_csv(messages_filepath)
     category_df = pd.read_csv(categories_filepath)
     consol_df = msg_df.merge(category_df, left_on = 'id', right_on = 'id')
@@ -11,6 +18,15 @@ def load_data(messages_filepath, categories_filepath):
     
 
 def clean_data(consol_df):
+    '''
+    Tranform the input dataframe:
+        1) Split the category values separated by ";"  and expand the values into individual columns
+        2) Convert the category column type to Integer
+        3) Concatenate the dataframe with the individual categories to the original messages dataframe
+    Parameters:
+        consol_df (Dataframe): Input data to be transformed
+    Returns: Dataframe 
+    '''
     categories = consol_df['categories'].str.split(pat = ';', expand = True)
     cat_names = categories[0:1].apply(lambda x: x.str[:-2]).astype(str)
     for column in categories.columns:
@@ -23,7 +39,15 @@ def clean_data(consol_df):
 
 
 def save_data(df, database_filename):
-    db_filename = 'sqlite:////data2/home/prasannaiyer/Projects/NLP_Project/Data/DisasterResponse1.db'
+    '''
+    Save the input dataframe as table in the specified database
+    Parameters:
+        df (Dataframe): Input data to be saved
+        database_filename (str): Path to the categories file
+    Returns: Dataframe 
+    '''
+    #db_filename = 'sqlite:////data2/home/prasannaiyer/Projects/NLP_Project/Data/DisasterResponse1.db'
+    db_filename = 'sqlite:///' + database_filename
     engine = create_engine(db_filename)
     df.to_sql('Message_Category', engine, index=False, if_exists = 'replace')
 

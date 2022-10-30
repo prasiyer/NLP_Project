@@ -21,7 +21,13 @@ import pickle
 
 
 def load_data(database_filepath):
-    db_engine = create_engine(database_filepath)
+    '''
+    Load data into a pandas dataframe from a table located in the input database
+    Parameters:
+        database_filepath (str): Path to the database file
+    '''
+    db_filename = 'sqlite:///' + database_filepath
+    db_engine = create_engine(db_filename)
     msg_df = pd.read_sql_table('Message_Category', db_engine)
     X = msg_df['message'].values
     for column_name in msg_df.columns[~msg_df.columns.isin(['id', 'genre', 'message', 'original'])]:
@@ -47,6 +53,10 @@ def tokenize(text):
 
 
 def build_model():
+    '''
+    Create and return a GridSearchCV instance. The input to the GridSearch consists of a Pipeline instand and with 2 parameters corresponding to the estimators
+    Returns: GridSearchCV instance
+    '''
     pipeline = Pipeline([
     ('vect', CountVectorizer(tokenizer = tokenize)),
     ('tfidf', TfidfTransformer()),
@@ -89,6 +99,12 @@ def evaluate_model(model, X_test, Y_test, category_names):
 
 
 def save_model(model, model_filepath):
+    '''
+    Save the input classifier model as a pickle file
+    Parameters:
+        model: Trained classifier model
+        model_filepath (str): Path where the model file should be saved
+    '''
     #filename = 'cv_model.sav'
     pickle.dump(model.best_estimator_, open(model_filepath, 'wb'))
 
