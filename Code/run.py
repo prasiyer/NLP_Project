@@ -23,6 +23,11 @@ subprocess.check_call([sys.executable, "-m", "pip", "install", 'scikit-learn'])
 app = Flask(__name__)
 
 def tokenize(text):
+    '''
+    Create tokens and then lemmatize the tokens. Useful for including in CountVectorizer
+    Parameters:
+        text (str): Input text to be tokenized
+    '''
     tokens = word_tokenize(text)
     lemmatizer = WordNetLemmatizer()
 
@@ -43,6 +48,7 @@ df = pd.read_sql_table('Message_Category', engine)
 #model = joblib.load("../models/your_model_name.pkl")
 #model = joblib.load("../models/classifier.pkl")
 #model = pickle.load(open('../models/classifier.pkl', 'rb'))
+## Load the model file ##
 model = pickle.load(open('/data2/home/prasannaiyer/Projects/NLP_Project/Code/cv_model.sav', 'rb'))
 
 
