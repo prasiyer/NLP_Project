@@ -12,7 +12,9 @@ from plotly.graph_objs import Bar
 import joblib
 from sqlalchemy import create_engine
 
-from sklearn.ensemble._forest import ForestClassifier, ForestRegressor
+#from sklearn.ensemble._forest import ForestClassifier, ForestRegressor
+from sklearn.ensemble import RandomForestClassifier
+from sklearn.model_selection import GridSearchCV
 import pickle
 import subprocess
 import sys
@@ -41,7 +43,10 @@ def tokenize(text):
 # load data
 #engine = create_engine('sqlite:///../data/YourDatabaseName.db')
 #engine = create_engine('sqlite:///../data/DisasterResponse.db')
-engine = create_engine('sqlite:////home/prasannaiyer/Projects/NLP_Project/Data/DisasterResponse.db')
+#engine = create_engine('sqlite:////home/prasannaiyer/Projects/NLP_Project/Data/DisasterResponse.db')
+db_filepath = './Data/DisasterResponse1.db'
+db_filepath_sql = 'sqlite:///' + db_filepath
+engine = create_engine(db_filepath_sql)
 df = pd.read_sql_table('Message_Category', engine)
 
 # load model
@@ -49,7 +54,8 @@ df = pd.read_sql_table('Message_Category', engine)
 #model = joblib.load("../models/classifier.pkl")
 #model = pickle.load(open('../models/classifier.pkl', 'rb'))
 ## Load the model file ##
-model = pickle.load(open('/data2/home/prasannaiyer/Projects/NLP_Project/Code/cv_model.sav', 'rb'))
+model_filepath = './Code/cv_model1.sav'
+model = pickle.load(open(model_filepath, 'rb'))
 
 
 # index webpage displays cool visuals and receives user input text for model
