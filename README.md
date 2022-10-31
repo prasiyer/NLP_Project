@@ -38,7 +38,7 @@ Instructions:
     c) database_filepath (str): String containing the location and name of the database. The pandas Dataframe with the transformed data will be saved as a table in this database </br>
     d) This script as run on the terminal -
         cd NLP_Project ## go to the location of the repository </br>
-        python ./Code/process_data.py ./Data/disaster_messages.csv ./Data/disaster_categories.csv ./Data/DisasterResponse.db </br>
+        python ./Code/process_data.py ./Data/disaster_messages.csv ./Data/disaster_categories.csv ./Data/DisasterResponse1.db </br>
 2) train_classifier.py: This script accepts 2 input parameters - </br>
     a) database_filepath (str): String containing the location and name of the database. This database has the input data for training (as a table) </br>
     b) model_filepath (str): String containing the location where the trained model should be stored (as a pickle file) </br>
