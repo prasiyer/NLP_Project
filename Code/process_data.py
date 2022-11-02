@@ -1,7 +1,7 @@
 import sys
 import pandas as pd
 from sqlalchemy import create_engine
-
+#Updated to assign clear column names for the categories
 
 def load_data(messages_filepath, categories_filepath):
     '''
@@ -28,10 +28,14 @@ def clean_data(consol_df):
     Returns: Dataframe 
     '''
     categories = consol_df['categories'].str.split(pat = ';', expand = True)
+
     cat_names = categories[0:1].apply(lambda x: x.str[:-2]).astype(str)
+    categories.columns = cat_names.values.flatten().tolist()
+    
     for column in categories.columns:
         categories[column] = categories[column].str[-1].astype(int)
         categories[column] = categories[column].apply(lambda x: 1 if x > 1 else x)
+    
     msg_cat_df = pd.concat([consol_df, categories], axis = 1)
     msg_cat_df.drop(columns = ['categories'], axis = 1, inplace = True)
     msg_cat_clean_df = msg_cat_df.drop_duplicates()
