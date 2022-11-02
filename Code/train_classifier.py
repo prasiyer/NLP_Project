@@ -95,6 +95,8 @@ def evaluate_model(model, X_test, Y_test, category_names):
         #print(column_name, '----', accuracy_score_column)
         accuracy_df.loc[i] = [column_name, accuracy_score_column, precision_score_column, recall_score_column, f1_score_column]
         i += 1
+    print('     Evaluation results by category:')
+    print(accuracy_df)
     return accuracy_df, trained_model_accuracy
 
 
