@@ -20,7 +20,7 @@ import subprocess
 import sys
 subprocess.check_call([sys.executable, "-m", "pip", "install", 'scikit-learn'])
 
-
+#Updated to include additional chart showing top categories
 
 app = Flask(__name__)
 
@@ -68,7 +68,10 @@ def index():
     genre_counts = df.groupby('genre').count()['message']
     genre_names = list(genre_counts.index)
     
-    # create visuals
+    df_category = df.melt(id_vars= ['id', 'genre', 'message', 'original'], value_vars= df.columns[~df.columns.isin(['id', 'genre', 'message', 'original'])])
+    top_category_values = list(df_category.groupby(by = 'variable')['value'].sum().sort_values(ascending = False)[:10].values)
+    top_category_names = list(df_category.groupby(by = 'variable')['value'].sum().sort_values(ascending = False)[:10].index)
+
     # TODO: Below is an example - modify to create your own visuals
     graphs = [
         {
@@ -76,6 +79,62 @@ def index():
                 Bar(
                     x=genre_names,
                     y=genre_counts
+                )
+            ],
+
+            'layout': {
+                'title': 'Distribution of Message Genres -1',
+                'yaxis': {
+                    'title': "Count"
+                },
+                'xaxis': {
+                    'title': "Genre"
+                }
+            }
+        },
+        {
+            'data': [
+                Bar(
+                    x=top_category_names,
+                    y=top_category_values
+                )
+            ],
+
+            'layout': {
+                'title': 'Top Categories by Occurence',
+                'yaxis': {
+                    'title': "Count"
+                },
+                'xaxis': {
+                    'title': "Category"
+                }
+            }
+        }
+    ]
+    
+    # encode plotly graphs in JSON
+    ids = ["graph-{}".format(i) for i, _ in enumerate(graphs)]
+    graphJSON = json.dumps(graphs, cls=plotly.utils.PlotlyJSONEncoder)
+    
+    # render web page with plotly graphs
+    return render_template('master.html', ids=ids, graphJSON=graphJSON)
+
+def chart_top_categories():
+    
+    # extract data needed for visuals
+    print('HERE') 
+    df_category = df.melt(id_vars= ['id', 'genre', 'message', 'original'], value_vars= df.columns[~df.columns.isin(['id', 'genre', 'message', 'original'])])
+    top_category_values = list(df_category.groupby(by = 'variable')['value'].sum().sort_values(ascending = False)[:10].values)
+    top_category_names = list(df_category.groupby(by = 'variable')['value'].sum().sort_values(ascending = False)[:10].index)
+    
+    # create visuals
+    # TODO: Below is an example - modify to create your own visuals
+    graphs = [
+        {
+            'data': [
+                Bar(
+                    x=top_category_names,
+                    y=top_category_values
                 )
             ],
 
@@ -97,8 +156,6 @@ def index():
     
     # render web page with plotly graphs
     return render_template('master.html', ids=ids, graphJSON=graphJSON)
-
-
 # web page that handles user query and displays model results
 @app.route('/go')
 def go():
